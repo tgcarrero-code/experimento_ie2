@@ -1,0 +1,54 @@
+{% block title %}Pantalla de pago final{% endblock %}
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500&display=swap');
+body { margin: 0; background: oklch(0.94 0.005 260); font-family: 'Inter', sans-serif; }
+.container { width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; }
+.card { width: 100%; max-width: 640px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px oklch(0.2 0.02 260 / 0.12); background: #fff; }
+.browser-bar { display: flex; align-items: center; gap: 16px; padding: 14px 20px; background: oklch(0.97 0.003 260); border-bottom: 1px solid oklch(0.9 0.005 260); }
+.dots { display: flex; gap: 8px; }
+.dot { width: 11px; height: 11px; border-radius: 50%; display: block; }
+.url-bar { flex: 1; background: #fff; border-radius: 8px; padding: 7px 14px; font-size: 13px; color: oklch(0.55 0.01 260); text-align: center; border: 1px solid oklch(0.9 0.005 260); }
+.content { padding: 48px; }
+.content-center { padding: 56px 48px 48px; text-align: center; }
+h1 { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 26px; color: oklch(0.3 0.09 260); margin: 0 0 24px; }
+.divider { height: 1px; background: oklch(0.88 0.005 260); margin: 0 0 32px; }
+p { font-size: 16px; line-height: 1.75; color: oklch(0.42 0.01 260); margin: 0 0 32px; }
+.box { background: oklch(0.97 0.003 260); border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 16px; }
+.box-label { font-size: 14px; color: oklch(0.55 0.01 260); margin-bottom: 8px; }
+.box-value { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 22px; color: oklch(0.53 0.17 275); }
+.box-text { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px; color: oklch(0.35 0.01 260); }
+.question-block { background: oklch(0.97 0.003 260); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+.question-text { font-size: 15px; color: oklch(0.3 0.09 260); font-weight: 500; margin-bottom: 16px; }
+.radio-label { display: flex; align-items: center; gap: 10px; font-size: 14px; color: oklch(0.35 0.01 260); cursor: pointer; margin-bottom: 10px; }
+</style>
+<div class="container">
+    <div class="card">
+        
+<div class="browser-bar">
+    <div class="dots">
+        <span class="dot" style="background:oklch(0.7 0.17 25);"></span>
+        <span class="dot" style="background:oklch(0.8 0.15 85);"></span>
+        <span class="dot" style="background:oklch(0.75 0.15 145);"></span>
+    </div>
+    <div class="url-bar">experimento.universidad.edu</div>
+</div>
+
+        
+<div class="content-center">
+    <h1>Muchas gracias por participar</h1>
+    <div class="divider"></div>
+    <p>Buscamos estudiar cómo las distintas reglas de asignación de recompensas se relacionan
+    con percepciones de justicia, emociones y motivación académica.</p>
+    <div class="box">
+        <div class="box-label">Tu pago variable</div>
+        <div class="box-value">S/. {{ pago_variable }}</div>
+    </div>
+    <div class="box">
+        <div class="box-label">Tu pago final</div>
+        <div class="box-value">S/. {{ pago_final }}</div>
+    </div>
+</div>
+    </div>
+</div>
+{% endblock %}
