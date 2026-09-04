@@ -115,9 +115,12 @@ class Test(Page):
 
 
 class EsperarPareja(WaitPage):
-    after_all_players_arrive = "asignar_bono"
     title_text = "Esperando a tu pareja..."
     body_text = "Por favor espera mientras tu pareja termina el test."
+
+    @staticmethod
+    def after_all_players_arrive(group):
+        group.asignar_bono()
 
 
 class Resultados(Page):
