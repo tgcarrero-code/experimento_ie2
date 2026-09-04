@@ -32,6 +32,10 @@ class Group(BaseGroup):
     tratamiento = models.BooleanField()
 
     def asignar_bono(self):
+        # Asignar tratamiento según el número de grupo si está vacío
+        if self.field_maybe_none('tratamiento') is None:
+            self.tratamiento = (self.id_in_subsession % 2 == 0)
+        
         p1, p2 = self.get_players()
         if self.tratamiento:
             ganador = p1 if p1.puntaje <= p2.puntaje else p2
