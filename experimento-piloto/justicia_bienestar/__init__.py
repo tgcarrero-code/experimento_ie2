@@ -91,4 +91,97 @@ class Player(BasePlayer):
     mot3 = models.IntegerField(label="Si las recompensas no reconocen el esfuerzo, mi motivación para esforzarme disminuye", choices=[1,2,3,4,5])
 
     c1 = models.IntegerField(label="Confío en que mi esfuerzo académico puede traducirse en mejores oportunidades", choices=[1,2,3,4,5])
-    c2 = models.IntegerField(label="Siento que mi rendimiento académico
+    c2 = models.IntegerField(label="Siento que mi rendimiento académico puede ayudarme a mejorar mis oportunidades futuras", choices=[1,2,3,4,5])
+    c3 = models.IntegerField(label="Esta experiencia me hace pensar con preocupación en si el esfuerzo siempre es recompensado justamente", choices=[1,2,3,4,5])
+
+    def calcular_puntaje(self):
+        respuestas = [self.r1, self.r2, self.r3, self.r4, self.r5,
+                      self.r6, self.r7, self.r8, self.r9, self.r10]
+        correctas = [p["correcta"] for p in C.PREGUNTAS]
+        self.puntaje = sum(1 for r, c in zip(respuestas, correctas) if r == c)
+
+
+class Bienvenida(Page):
+    pass
+
+
+class Demograficos(Page):
+    form_model = "player"
+    form_fields = ["edad", "sexo", "carrera", "ciclo", "promedio", "beca", "practicando", "situacion_economica", "horas_sueno"]
+
+
+class Instrucciones(Page):
+    pass
+
+
+class Test(Page):
+    form_model = "player"
+    form_fields = ["r1","r2","r3","r4","r5","r6","r7","r8","r9","r10"]
+
+    def vars_for_template(self):
+        return {"preguntas": C.PREGUNTAS}
+
+    def before_next_page(self, timeout_happened):
+        self.calcular_puntaje()
+
+
+class EsperarPareja(WaitPage):
+    title_text = "Esperando a tu pareja..."
+    body_text = "Por favor espera mientras tu pareja termina el test."
+
+    @staticmethod
+    def after_all_players_arrive(group):
+        group.asignar_bono()
+
+
+class Resultados(Page):
+    def vars_for_template(self):
+        pareja = self.get_others_in_group()[0]
+        return {
+            "mi_puntaje": self.puntaje,
+            "puntaje_pareja": pareja.puntaje,
+            "gane": self.gano_bono,
+            "tratamiento": self.group.tratamiento,
+        }
+
+
+class Transicion(Page):
+    pass
+
+
+class PercepcionJusticia(Page):
+    form_model = "player"
+    form_fields = ["j1", "j2", "j3", "j4"]
+
+    def vars_for_template(self):
+        return {"tratamiento": self.group.tratamiento}
+
+
+class MalestarEmocional(Page):
+    form_model = "player"
+    form_fields = ["m1", "m2", "m3", "m4"]
+
+
+class Motivacion(Page):
+    form_model = "player"
+    form_fields = ["mot1", "mot2", "mot3"]
+
+
+class Confianza(Page):
+    form_model = "player"
+    form_fields = ["c1", "c2", "c3"]
+
+
+class PagoFinal(Page):
+    def vars_for_template(self):
+        return {
+            "pago_variable": C.BONO if self.gano_bono else 0,
+            "pago_final": 7.50 + (C.BONO if self.gano_bono else 0),
+        }
+
+
+page_sequence = [
+    Bienvenida, Demograficos, Instrucciones, Test,
+    EsperarPareja, Resultados, Transicion,
+    PercepcionJusticia, MalestarEmocional, Motivacion, Confianza, PagoFinal,
+]
