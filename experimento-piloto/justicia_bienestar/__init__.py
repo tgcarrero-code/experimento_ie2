@@ -1,4 +1,5 @@
 from otree.api import *
+import random
 
 
 class C(BaseConstants):
@@ -8,15 +9,15 @@ class C(BaseConstants):
     BONO = 5
 
     PREGUNTAS = [
-        {"id": 1, "pregunta": "¿Cuánto es 17 × 8?", "opciones": ["126", "136", "144", "152"], "correcta": "136"},
+        {"id": 1, "pregunta": "¿Cuál es el menor número entero positivo divisible entre 6, 8 y 9?", "opciones": ["36", "72", "48", "144"], "correcta": "72"},
         {"id": 2, "pregunta": "¿Cuánto es 15% de 240?", "opciones": ["24", "30", "36", "40"], "correcta": "36"},
-        {"id": 3, "pregunta": "Un producto cuesta S/. 120 con 20% de descuento. ¿Cuál era el precio original?", "opciones": ["S/. 140", "S/. 150", "S/. 144", "S/. 160"], "correcta": "S/. 150"},
-        {"id": 4, "pregunta": "Si todos los gatos son animales y algunos animales son negros, ¿todos los gatos son negros?", "opciones": ["Sí, necesariamente", "No, no necesariamente", "Depende del gato", "No hay suficiente información"], "correcta": "No, no necesariamente"},
+        {"id": 3, "pregunta": "Un producto cuesta S/. 120 con 20% de descuento aplicado. ¿Cuál era el precio original?", "opciones": ["S/. 140", "S/. 150", "S/. 144", "S/. 160"], "correcta": "S/. 150"},
+        {"id": 4, "pregunta": "Si todos los gatos son animales y algunos animales son negros, ¿es verdad que todos los gatos son negros?", "opciones": ["Sí, necesariamente", "No, no necesariamente", "Depende del gato", "No hay suficiente información"], "correcta": "No, no necesariamente"},
         {"id": 5, "pregunta": "Completa la secuencia: 1, 3, 6, 10, 15, ___", "opciones": ["18", "19", "20", "21"], "correcta": "21"},
         {"id": 6, "pregunta": "Si hoy es miércoles, ¿qué día será en 10 días?", "opciones": ["Viernes", "Jueves", "Sábado", "Domingo"], "correcta": "Sábado"},
         {"id": 7, "pregunta": "¿Cuál es la capital de Australia?", "opciones": ["Sídney", "Melbourne", "Brisbane", "Canberra"], "correcta": "Canberra"},
         {"id": 8, "pregunta": "¿En qué año terminó la Segunda Guerra Mundial?", "opciones": ["1943", "1944", "1945", "1946"], "correcta": "1945"},
-        {"id": 9, "pregunta": "¿Cuántas letras a hay en: La naturaleza amazónica alberga una fauna extraordinaria?", "opciones": ["8", "9", "10", "14"], "correcta": "14"},
+        {"id": 9, "pregunta": "Si 5 máquinas producen 5 piezas en 5 minutos, ¿cuántos minutos necesitan 100 máquinas para producir 100 piezas?", "opciones": ["5", "20", "100", "500"], "correcta": "5"},
         {"id": 10, "pregunta": "¿Cuántas veces aparece el número 3 entre 1 y 30?", "opciones": ["2", "3", "4", "5"], "correcta": "4"},
     ]
 
@@ -32,15 +33,21 @@ class Group(BaseGroup):
     tratamiento = models.BooleanField()
 
     def asignar_bono(self):
-        # Asignar tratamiento según el número de grupo si está vacío
         if self.field_maybe_none('tratamiento') is None:
             self.tratamiento = (self.id_in_subsession % 2 == 0)
-        
+
         p1, p2 = self.get_players()
-        if self.tratamiento:
-            ganador = p1 if p1.puntaje <= p2.puntaje else p2
+
+        # En caso de empate, ganador aleatorio en ambos grupos
+        if p1.puntaje == p2.puntaje:
+            ganador = random.choice([p1, p2])
+        elif self.tratamiento:
+            # Tratamiento: gana el de MENOR puntaje
+            ganador = p1 if p1.puntaje < p2.puntaje else p2
         else:
-            ganador = p1 if p1.puntaje >= p2.puntaje else p2
+            # Control: gana el de MAYOR puntaje
+            ganador = p1 if p1.puntaje > p2.puntaje else p2
+
         ganador.gano_bono = True
         ganador.payoff = C.BONO
 
@@ -69,22 +76,22 @@ class Player(BasePlayer):
     r9 = models.StringField(blank=True)
     r10 = models.StringField(blank=True)
 
-    j1 = models.IntegerField(label="¿Qué tan justa te pareció la regla?", choices=[1,2,3,4,5])
+    j1 = models.IntegerField(label="¿Qué tan justa te pareció la regla de asignación del bono?", choices=[1,2,3,4,5])
     j2 = models.IntegerField(label="¿Qué tan justo te pareció el resultado?", choices=[1,2,3,4,5])
-    j3 = models.IntegerField(label="¿El bono reflejó el esfuerzo realizado?", choices=[1,2,3,4,5])
-    j4 = models.IntegerField(label="¿Qué tan injusta sería una regla similar en contexto académico?", choices=[1,2,3,4,5])
+    j3 = models.IntegerField(label="¿Qué tanto crees que el bono reflejó el esfuerzo realizado?", choices=[1,2,3,4,5])
+    j4 = models.IntegerField(label="¿Qué tan injusta te parecería una regla similar en un contexto académico o laboral?", choices=[1,2,3,4,5])
 
     m1 = models.IntegerField(label="En este momento me siento frustrado/a", choices=[1,2,3,4,5])
     m2 = models.IntegerField(label="En este momento me siento tenso/a", choices=[1,2,3,4,5])
     m3 = models.IntegerField(label="En este momento me siento preocupado/a", choices=[1,2,3,4,5])
     m4 = models.IntegerField(label="En este momento siento incomodidad con el resultado", choices=[1,2,3,4,5])
 
-    mot1 = models.IntegerField(label="Me sentiría motivado/a a esforzarme en una tarea similar", choices=[1,2,3,4,5])
-    mot2 = models.IntegerField(label="Cuando las recompensas dependen del desempeño, vale la pena esforzarse", choices=[1,2,3,4,5])
-    mot3 = models.IntegerField(label="Si las recompensas no reconocen el esfuerzo, mi motivación disminuye", choices=[1,2,3,4,5])
+    mot1 = models.IntegerField(label="Después de esta experiencia, me sentiría motivado/a a esforzarme en una tarea similar", choices=[1,2,3,4,5])
+    mot2 = models.IntegerField(label="Cuando las recompensas dependen del desempeño, siento que vale la pena esforzarse", choices=[1,2,3,4,5])
+    mot3 = models.IntegerField(label="Si las recompensas no reconocen el esfuerzo, mi motivación para esforzarme disminuye", choices=[1,2,3,4,5])
 
     c1 = models.IntegerField(label="Confío en que mi esfuerzo académico puede traducirse en mejores oportunidades", choices=[1,2,3,4,5])
-    c2 = models.IntegerField(label="Mi rendimiento académico puede ayudarme a mejorar mis oportunidades futuras", choices=[1,2,3,4,5])
+    c2 = models.IntegerField(label="Siento que mi rendimiento académico puede ayudarme a mejorar mis oportunidades futuras", choices=[1,2,3,4,5])
     c3 = models.IntegerField(label="Esta experiencia me hace pensar con preocupación en si el esfuerzo siempre es recompensado justamente", choices=[1,2,3,4,5])
 
     def calcular_puntaje(self):
